@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <title>Dashboard</title>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+          <h2>Test Set Results for Experiment {{ params['experiment_id'] }}</h2>
+          <p>Current number of completed HITS is {{ params['num_turkers'] }}.</p>
+          <br>
+
+          <table class="table">
+              <thead>
+                <tr><th>Strategy</th> <th>Num Turkers</th><th>Test Average</th></tr>
+              </thead>
+              <tbody>
+                {% for rr in range(params['strat_names']|length) %}
+                <tr>
+                    <td>{{ params['strat_names'][rr]}}</td>
+                    <td>{{ params['users_per_strat'][rr]}}</td>
+                    <td>{{ params['test_scores'][rr]}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+          </table>
+
+        </div>
+      </div>
+
+
+
+
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  </body>
+
+</html>

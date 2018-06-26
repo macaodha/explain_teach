@@ -1,0 +1,5 @@
+{
+    "num_train": 3,
+    "display_explain_image": [1, 1, 1],
+    "im_ids": [2, 1, 0]
+}

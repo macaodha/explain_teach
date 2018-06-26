@@ -1,0 +1,7 @@
+{
+    "num_train": 20,
+    "feat_dims_to_show": [],
+    "num_feats_to_show": 0,
+    "display_explain_image": 0,
+    "display_text": 0
+}

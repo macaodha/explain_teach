@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <title>Image Quiz</title>
+  </head>
+
+  <body>
+
+    <div class="container">
+
+      <br>
+      <div class="row">
+        <canvas id="imCanvas"></canvas>
+      </div>
+
+      <br>
+      <div class="row text-center">
+        <p>Please select one of the following options:</p>
+
+        <form action="" method="POST" class="form-horizontal">
+        <div class="btn-group-vertical" data-toggle="buttons">
+          {% for bb in params['button_order'] %}
+            <div class="form-group">
+              <label class="btn btn-default" id="btn_class{{ bb }}">
+              <input type="radio" name="action" value="{{ bb }}">{{ params['class_names'][bb] }}
+              </label>
+            </div>
+          {% endfor %}
+        </div>
+
+        <br><br>
+        <input type="button" id="submitRes" class="btn btn-default" onclick="revealButton()" value="Submit" disabled="disabled"/>
+        <input type="submit" id="nextImage" class="btn btn-primary" value="Next Image" style="display: none;">
+        </form>
+
+        <span class="answer_feedback"></span>
+        <span class="feature_feedback"></span>
+      </div>
+
+      <br>
+      <div class="row text-center">
+        <h4 class="text-info">{{ params['total_num_ims'] - params['len_resp'] -1 }} images left.</h4>
+      </div>
+
+      <div id="trainingOverModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h3 class="modal-title">Training Finished!</h3>
+            </div>
+            <div class="modal-body">
+              <h3>You will no longer get hints or feedback on your performance.</h3>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div id="trainingFeedbackModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h3 class="modal-title">Training Half Way Complete!</h3>
+            </div>
+            <div class="modal-body">
+              <h3>Only {{ params['num_train'] - params['len_resp'] }} more training images left.</h3>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <script>
+    var left_pad = 0;  // no padding
+    {% if params['display_explain_image'] %}
+      var display_explain_image = true;
+    {% else %}
+      var display_explain_image = false;
+    {% endif %}
+    var answer_revealed = false;
+    var scale = {{ params['scale'] }};  // make images appear bigger if they are small
+
+
+    {% if params['training_finished'] %}
+    $(document).ready(function () {
+      $('#trainingOverModal').modal('show');
+    });
+    {% endif %}
+
+    {% if params['train_feedback'] %}
+    $(document).ready(function () {
+      $('#trainingFeedbackModal').modal('show');
+    });
+    {% endif %}
+
+    $("input:radio").change(function () {$("#submitRes").prop("disabled", false);});
+
+    function revealButton(){
+      {% if params['is_train'] %}
+        var response = $("input[name=action]:checked").val();
+
+        var correct = '<h2 class="bg-success text-white">Correct Answer</h2>'
+        var incorrect = '<h2 class="bg-danger text-white">Wrong answer! The correct answer is "{{ params["class_names"][params["label"]] }}".</h2>'
+
+        if (response == {{ params['label'] }}) {
+          $("span.answer_feedback").html(correct);
+        } else {
+          $("span.answer_feedback").html(incorrect);
+        }
+        // highlight the correct class
+        $("#btn_class{{ params['label'] }}").removeClass("btn-default").addClass("btn-success");
+
+      {% endif %}
+
+      {% if params['display_explain_image'] %}
+        answer_revealed = true;
+        displayExplanationImage();
+        var feature_text = '<h2>The highlighted region is often important for telling the difference between classes.<br>';
+        feature_text += 'Move your mouse over the image to stop it changing.</h2>';
+        $("span.feature_feedback").html(feature_text);
+      {% endif %}
+
+      {% for bb in params['button_order'] %}
+        $("#btn_class{{bb}}").addClass("disabled-group");
+      {% endfor %}
+
+      {% if params['is_train'] %}
+        $("#nextImage").delay(2000).show(0);
+      {% else %}
+        $("#nextImage").show();
+      {% endif %}
+      $("#submitRes").hide();
+    }
+
+    // when we show explanation it will swap between images
+    var swap_time = 500;
+    var show_explain = false;
+    var timer;
+
+    // display feature hints using canvas element
+    var canvas = document.getElementById("imCanvas");
+    var cx = canvas.getContext("2d");
+    var img = new Image();
+    img.src = "{{ params['image'] }}";
+    var img_explain = new Image();
+    img_explain.src = "{{ params['explain_image'] }}";
+
+    // when the images are loaded start displaying
+    $(window).on("load", function() {
+      var width = scale*img.naturalWidth;
+      var height = scale*img.naturalHeight;
+
+      cx.canvas.width = width+left_pad*2;
+      cx.canvas.height = height;
+      cx.drawImage(img, left_pad, 0, width, height);
+    });
+
+
+    function swapImage() {
+      cx.clearRect(0, 0, cx.canvas.width, cx.canvas.height);
+      if (show_explain == true)
+        cx.drawImage(img, left_pad, 0, scale*img.naturalWidth, scale*img.naturalHeight);
+      else
+        cx.drawImage(img_explain, left_pad, 0, scale*img_explain.naturalWidth, scale*img_explain.naturalHeight);
+      show_explain = !show_explain;
+    }
+
+
+    canvas.addEventListener('mouseover', function() {
+      // stop the timer
+      if (display_explain_image == true & answer_revealed == true) {
+        clearInterval(timer);
+      }
+
+      // only show image
+      cx.clearRect(0, 0, cx.canvas.width, cx.canvas.height);
+      cx.drawImage(img, left_pad, 0, scale*img.naturalWidth, scale*img.naturalHeight);
+    });
+
+    canvas.addEventListener('mouseout', function() {
+      // show the explanation image
+      if (display_explain_image == true & answer_revealed == true) {
+        timer = setInterval(swapImage, swap_time);
+        cx.clearRect(0, 0, cx.canvas.width, cx.canvas.height);
+        cx.drawImage(img_explain, left_pad, 0, scale*img_explain.naturalWidth, scale*img_explain.naturalHeight);
+      }
+
+    });
+
+
+    function displayExplanationImage() {
+      // starts the timer which swaps the images
+      clearInterval(timer);
+      timer = setInterval(swapImage, swap_time);
+    }
+
+
+    </script>
+
+  </body>
+
+</html>

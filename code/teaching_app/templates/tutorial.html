@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <title>Image Quiz - Tutorial</title>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="row text-center">
+        <img class="tutorial" src="{{ url_for('static', filename = params['tutorial_images'][params['im_id']] ) }}">
+      </div>
+
+      <br>
+      <div class="row text-center">
+        <div class="col-md-8 col-md-offset-2">
+          {% if params['im_id'] == params['tutorial_images']|length-1 %}
+            <a href="#" onclick="display_modal()" class="btn-lg btn-primary" role="button">Next</a>
+          {% else %}
+            <a href="/tutorial/{{ params['im_id'] +1}}" class="btn-lg btn-primary" role="button">Next</a>
+          {% endif%}
+        </div>
+      </div>
+
+      <div id="tutorial_modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h3 class="modal-title">Tutorial Finished</h3>
+            </div>
+            <div class="modal-body">
+              <h3>You will now start the real experiment.</h3>
+            </div>
+            <div class="modal-footer">
+              <a href="/teaching" class="btn-lg btn-success" role="button" onclick="display_modal()">Start</a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <script>
+      function display_modal(){
+        $('#tutorial_modal').modal('show');
+      }
+    </script>
+
+  </body>
+
+</html>

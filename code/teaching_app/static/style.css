@@ -1,0 +1,32 @@
+canvas {
+  padding: 0;
+  margin: auto;
+  display: block;
+}
+
+.disabled-group  {
+  pointer-events: none;
+}
+
+.form-group input[type="radio"] {
+     -webkit-appearance: none;
+}
+
+.form-group{
+    margin-bottom:0px;
+}
+
+.form-group label {
+     width: 100%;
+     margin-right:0px;
+}
+
+.form-group span {
+     margin-top:0px;
+}
+
+img.tutorial {
+   padding:1px;
+   border:1px solid #010d21;
+   background-color:#010d21;
+}
