@@ -3,7 +3,7 @@ Code for recreating the results in our CVPR 2018 paper.
 
 `code` contains the main code for the teaching algorithms and data generation.  
 `data` contains the image datasets.  
-`results` contrains the results files and plot generation scripts.   
+`results` contains the results files and plot generation scripts.   
 
 
 ## Reference
