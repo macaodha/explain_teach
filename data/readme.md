@@ -3,7 +3,7 @@ Datasets used in our CVPR 2018 paper.
 
 For patient privacy reasons we cannot re-distribute the images in the OCT dataset.  
 
-The datasets can be downloaded from [here](http://www.vision.caltech.edu/~macaodha/files/cvpr_2018_teach_data.zip).
+The datasets can be downloaded from [here](https://homepages.inf.ed.ac.uk/omacaod/files/cvpr_2018_teach_data.zip).
 
 ## Reference
 If you find our work useful in your research please consider citing our paper.  
